@@ -163,3 +163,26 @@ class AllInstruments:
         return AllInstruments(
             result=AllInstrumentsResult.from_dict(data["result"]), id=data.get("id")
         )
+
+
+@dataclass
+class InstrumentsResult:
+    instruments: List[Instrument]
+
+    @staticmethod
+    def from_dict(data: list) -> "InstrumentsResult":
+        return InstrumentsResult(
+            instruments=[Instrument.from_dict(item) for item in data],
+        )
+
+
+@dataclass
+class Instruments:
+    result: InstrumentsResult
+    id: Optional[str]
+
+    @staticmethod
+    def from_dict(data: dict) -> "Instruments":
+        return Instruments(
+            result=InstrumentsResult.from_dict(data["result"]), id=data.get("id")
+        )

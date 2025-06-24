@@ -2,8 +2,8 @@ import requests
 from typing import Optional
 
 from derivepy.models.response_model import ResponseModel
-from derivepy.models.derive_response_model import AllInstruments
-from derivepy.models.derive_request_model import AllInstrumentRequestModel
+from derivepy.models.derive_response_model import *
+from derivepy.models.derive_request_model import *
 
 
 class DeriveClient:
@@ -14,7 +14,7 @@ class DeriveClient:
             "content-type": "application/json",
         }
 
-    def get_all_instruments(self, body: AllInstrumentRequestModel) -> ResponseModel:
+    def get_all_instruments(self, body: AllInstrumentRequest) -> ResponseModel:
         url = f"{self.__base_url}/public/get_all_instruments"
 
         try:
@@ -45,10 +45,48 @@ class DeriveClient:
                     error_message={"message": "HTTP error", "details": data},
                 )
         except requests.RequestException as e:
-            status_code = getattr(e.response, "status_code", 500)
             return ResponseModel(
                 success=False,
-                status_code=status_code,
+                status_code=getattr(e.response, "status_code", 500),
+                error_message=str(e),
+            )
+
+    def get_instruments(self, body: InstrumentRequest) -> ResponseModel:
+        url = f"{self.__base_url}/public/get_instruments"
+
+        try:
+            response = requests.post(url, json=body.to_json(), headers=self.__header)
+            print(response.json())
+            if response.status_code == 200:
+                resp_json = response.json()
+
+                if "error" in resp_json:
+                    return ResponseModel(
+                        success=False,
+                        status_code=response.status_code,
+                        error_message=resp_json["error"],
+                    )
+
+                return ResponseModel(
+                    success=True,
+                    status_code=response.status_code,
+                    data=Instruments.from_dict(resp_json),
+                )
+
+            try:
+                data = response.json()
+            except ValueError:
+                data = response.text
+
+                return ResponseModel(
+                    success=False,
+                    status_code=response.status_code,
+                    error_message={"message": "HTTP error", "details": data},
+                )
+        except requests.RequestException as e:
+            return ResponseModel(
+                success=False,
+                status_code=getattr(e.response, "status_code", 500),
                 error_message=str(e),
             )
 
