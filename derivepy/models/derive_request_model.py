@@ -34,3 +34,11 @@ class InstrumentRequest:
             "instrument_type": self.instrument_type.value,
             "currency": self.currency,
         }
+
+
+@dataclass
+class TickerRequest:
+    instrument_name: str
+
+    def to_json(self) -> dict:
+        return {"instrument_name": self.instrument_name}
