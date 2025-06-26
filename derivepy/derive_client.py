@@ -129,6 +129,47 @@ class DeriveClient:
                 error_message=str(e),
             )
 
+    def get_option_settlement_prices(
+        self, body: OptionSettlementPricesRequest
+    ) -> ResponseModel:
+        url = f"{self.__base_url}/public/get_option_settlement_prices"
+
+        try:
+            response = requests.post(url, json=body.to_json(), headers=self.__header)
+            if response.status_code == 200:
+                resp_json = response.json()
+
+                if "error" in resp_json:
+                    return ResponseModel(
+                        success=False,
+                        status_code=response.status_code,
+                        error_message=resp_json["error"],
+                    )
+
+                return ResponseModel(
+                    success=True,
+                    status_code=response.status_code,
+                    data=OptionSettlementPricesResponse.from_dict(resp_json),
+                )
+
+            try:
+                data = response.json()
+            except ValueError:
+                data = response.text
+
+                return ResponseModel(
+                    success=False,
+                    status_code=response.status_code,
+                    error_message={"message": "HTTP error", "details": data},
+                )
+
+        except requests.RequestException as e:
+            return ResponseModel(
+                success=False,
+                status_code=getattr(e.response, "status_code", 500),
+                error_message=str(e),
+            )
+
     def __get_base_url(self, test_net_status: bool) -> str:
         return (
             "https://api-demo.lyra.finance"

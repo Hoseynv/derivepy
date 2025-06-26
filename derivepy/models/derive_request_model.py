@@ -42,3 +42,11 @@ class TickerRequest:
 
     def to_json(self) -> dict:
         return {"instrument_name": self.instrument_name}
+
+
+@dataclass
+class OptionSettlementPricesRequest:
+    currency: str
+
+    def to_json(self) -> dict:
+        return {"currency": self.currency}

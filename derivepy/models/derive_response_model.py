@@ -350,3 +350,41 @@ class TickerResponse:
                 },
             ),
         )
+
+
+@dataclass
+class ExpiryPrice:
+    utc_expiry_sec: int
+    expiry_date: str
+    price: str
+
+    @staticmethod
+    def from_dict(data: Dict) -> "ExpiryPrice":
+        return ExpiryPrice(
+            utc_expiry_sec=data["utc_expiry_sec"],
+            expiry_date=data["expiry_date"],
+            price=data["price"],
+        )
+
+
+@dataclass
+class OptionSettlementResult:
+    expiries: List[ExpiryPrice]
+
+    @staticmethod
+    def from_dict(data: Dict) -> "OptionSettlementResult":
+        return OptionSettlementResult(
+            expiries=[ExpiryPrice.from_dict(exp) for exp in data.get("expiries", [])]
+        )
+
+
+@dataclass
+class OptionSettlementPricesResponse:
+    result: OptionSettlementResult
+    id: str
+
+    @staticmethod
+    def from_dict(data: Dict) -> "OptionSettlementPricesResponse":
+        return OptionSettlementPricesResponse(
+            result=OptionSettlementResult.from_dict(data["result"]), id=data["id"]
+        )
